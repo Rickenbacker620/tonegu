@@ -48,17 +48,17 @@ export abstract class Instrument {
     chord.forEach((note) => this.attack(note, velocity / chord.length, time));
   }
 
-  public playScale(
-    scale: MultiNote,
+  public playArpeggio(
+    arpeggio: MultiNote,
     velocity: number = 1,
     time: number = 1
   ): void {
-    if (typeof scale === "string") {
-      scale = appendOctave(Chord.fromString(scale).notes);
+    if (typeof arpeggio === "string") {
+      arpeggio = appendOctave(Chord.fromString(arpeggio).notes);
     }
-    for (let i = 0; i < scale.length; i++) {
+    for (let i = 0; i < arpeggio.length; i++) {
       setTimeout(
-        () => this.attack(scale[i], velocity, time),
+        () => this.attack(arpeggio[i], velocity, time),
         (time + 0.2) * 1000 * i
       );
     }
