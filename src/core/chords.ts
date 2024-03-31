@@ -1,5 +1,5 @@
 import { Accidental, noteSequence, toNoteIndex, toPitchClass } from "./note";
-import { chordChart } from "./chordsChart";
+import chordsList from "./chordsList.json";
 
 export class Chord {
   readonly name: string;
@@ -22,7 +22,7 @@ export class Chord {
 
     const [_, root, quality, inversion] = matches;
 
-    const result = chordChart.find((chord) => {
+    const result = chordsList.find((chord) => {
       return chord.notations.includes(quality);
     });
     if (!result) {
