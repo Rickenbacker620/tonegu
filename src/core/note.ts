@@ -19,23 +19,29 @@ export const noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
 
 export type Octave = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 
-export type MidiNote = number;
-export type SingleNote = string;
-export type MultiNote = string[] | string;
-
-export function calcInterval(note: MidiNote, interval: number): MidiNote {
-  return note + interval;
-}
-
 let A4 = 440;
+
+/**
+ * Set the frequency of A4
+ * @param frequency set the frequency of A4
+ */
 export function setA4(frequency: number): void {
   A4 = frequency;
 }
 
+/**
+ * Return the frequency of A4
+ * @returns A4 frequency
+ */
 export function getA4(): number {
   return A4;
 }
 
+/**
+ * Convert a note string or midi number to frequency
+ * @param arg note string or midi number to be converted to frequency
+ * @returns frequency of the note
+ */
 export function toFrequency(arg: number | string): number {
   if (typeof arg === "string") {
     arg = toMidi(arg);
@@ -44,20 +50,11 @@ export function toFrequency(arg: number | string): number {
   return A4 * Math.pow(2, (arg - 69) / 12);
 }
 
-export function toNote(num: number): string {
-  const octave = Math.floor(num / 12) - 1;
-  let pitch = Pitch[num % 12];
-  let accidental;
-  if (pitch === undefined) {
-    pitch = Pitch[(num % 12) - 1];
-    accidental = "#";
-  } else {
-    accidental = "";
-  }
-
-  return `${pitch}${accidental}${octave}`;
-}
-
+/**
+ * Convert a note string to midi number
+ * @param str note string
+ * @returns midi number
+ */
 export function toMidi(str: string): number {
   const matches = str.match(/^([A-G])(b|bb|#|##)?(\d)$/);
 
@@ -72,13 +69,24 @@ export function toMidi(str: string): number {
   return (octave + 1) * 12 + pitch + accidental;
 }
 
+/**
+ * Convert a note string to note index, only include C, D, E, F, G, A, B, no accidentals
+ * @param note note string
+ * @returns note index
+ */
 export function toNoteIndex(note: string): number {
   const index = noteSequence.indexOf(note[0]);
   return index;
 }
 
+/**
+ * Convert a note string to pitch class
+ *
+ * @param str string representation of a note
+ * @returns pitch class of the note
+ */
 export function toPitchClass(str: string): number {
-  const matches = str.match(/^([A-G])(bb?|##?)?/);
+  const matches = str.match(/^([A-G])(b|bb|#|##)?$/);
 
   if (!matches) {
     throw new Error("Invalid note");
@@ -90,6 +98,11 @@ export function toPitchClass(str: string): number {
   return (pitch + accidental) % 12;
 }
 
+/**
+ * Append octave to notes, starting from octave 4
+ * @param notes
+ * @returns notes with octave
+ */
 export function appendOctave(notes: string[]): string[] {
   const newNotes = [];
   let octave = 4;

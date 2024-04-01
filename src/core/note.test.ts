@@ -36,6 +36,7 @@ const noteTestCase = [
   { note: "Bb", pitchClass: 10, noteIndex: 6 },
   { note: "Bbb", pitchClass: 9, noteIndex: 6 },
   { note: "E#", pitchClass: 5, noteIndex: 2 },
+  { note: "E##", pitchClass: 6, noteIndex: 2 },
 ];
 
 const appendOctaveTestCases: [string[], string[]][] = [
