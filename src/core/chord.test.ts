@@ -16,35 +16,11 @@ const chordTestCases = [
   { name: "Bb7", notes: ["Bb", "D", "F", "Ab"], bassNote: "Bb" },
   { name: "Bb7/D", notes: ["D", "F", "Ab", "Bb"], bassNote: "D" },
   { name: "C/G", notes: ["G", "C", "E"], bassNote: "G" },
+  { name: "C/F", notes: ["F", "C", "E", "G"], bassNote: "F" },
 ];
 
 describe.each(chordTestCases)("$name", ({ name, notes }) => {
   test(`Components: ${notes}`, () => {
-    expect(new Chord(name).notes).toEqual(notes);
+    expect(Chord.get(name).notes).toEqual(notes);
   });
-});
-
-class Fibonacci {
-  public name: string = "Fibo";
-  [Symbol.iterator]() {
-    let a = 0,
-      b = 1;
-    return {
-      next() {
-        let rval = { value: b, done: false };
-        b += a;
-        a = rval.value;
-        return rval;
-      },
-    };
-  }
-}
-
-test("NeoChord", () => {
-  const fib = new Fibonacci();
-  console.log(fib.name)
-  for (const num of fib) {
-    console.log(num);
-    if (num > 100) break;
-  }
 });

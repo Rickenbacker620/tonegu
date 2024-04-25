@@ -33,7 +33,7 @@ export abstract class Instrument {
     time: number = 1
   ): void {
     if (typeof chord === "string") {
-      chord = appendOctave(Chord.fromString(chord).notes);
+      chord = appendOctave(Chord.get(chord).notes);
     }
     chord.forEach((note) => this.attack(note, velocity / chord.length, time));
   }
@@ -44,7 +44,7 @@ export abstract class Instrument {
     time: number = 1
   ): void {
     if (typeof arpeggio === "string") {
-      arpeggio = appendOctave(Chord.fromString(arpeggio).notes);
+      arpeggio = appendOctave(Chord.get(arpeggio).notes);
     }
     for (let i = 0; i < arpeggio.length; i++) {
       setTimeout(

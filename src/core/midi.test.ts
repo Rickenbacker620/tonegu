@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { appendOctave, toFrequency, toMidi } from "./midi";
+import { MidiNote, appendOctave } from "./midi";
 
 const noteWithOctaveTestCase = [
   { note: "A0", midi: 21, frequency: 27.5 },
@@ -38,22 +38,15 @@ const appendOctaveTestCases: [string[], string[]][] = [
 
 describe.each(noteWithOctaveTestCase)(
   "Note $note",
-  ({ note, midi, frequency }) => {
+  ({ note: noteLiteral, midi, frequency }) => {
+    const note = new MidiNote(noteLiteral);
+
     test(`MIDI: ${midi}`, () => {
-      expect(toMidi(note)).toBe(midi);
+      expect(note.midiNumber).toBe(midi);
     });
 
     test(`${frequency}hz `, () => {
-      expect(toFrequency(note)).toBeCloseTo(frequency);
-    });
-  }
-);
-
-describe.each(noteWithOctaveTestCase)(
-  "Midi number $midi",
-  ({ midi, frequency }) => {
-    test(`${frequency}hz `, () => {
-      expect(toFrequency(midi)).toBeCloseTo(frequency);
+      expect(note.frequency).toBeCloseTo(frequency);
     });
   }
 );

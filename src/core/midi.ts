@@ -1,34 +1,35 @@
-import { Accidental, Octave, Pitch } from "./note";
+import { Note } from "./note";
 
-let A4 = 440;
-
-/**
- * Set the frequency of A4
- * @param frequency set the frequency of A4
- */
-export function setA4(frequency: number): void {
-  A4 = frequency;
-}
-
-/**
- * Return the frequency of A4
- * @returns A4 frequency
- */
-export function getA4(): number {
-  return A4;
-}
-
-/**
- * Convert a note string or midi number to frequency
- * @param arg note string or midi number to be converted to frequency
- * @returns frequency of the note
- */
-export function toFrequency(arg: number | string): number {
-  if (typeof arg === "string") {
-    arg = toMidi(arg);
+export class MidiNote extends Note {
+  public static getMidi(noteliteral: string | number): MidiNote {
+    return new MidiNote(noteliteral);
   }
 
-  return A4 * Math.pow(2, (arg - 69) / 12);
+  public readonly midiNumber: number;
+  public readonly octave: number;
+
+  public static A4 = 440;
+
+  constructor(noteIdentifier: string | number) {
+    if (typeof noteIdentifier === "string") {
+      const noteLiteral = noteIdentifier.slice(0, -1);
+      super(noteLiteral);
+
+      this.octave = parseInt(noteIdentifier.slice(-1));
+      this.midiNumber = (this.octave + 1) * 12 + this.pitchClass;
+    } else if (typeof noteIdentifier === "number") {
+      super(noteIdentifier);
+
+      this.octave = Math.floor(noteIdentifier / 12) - 1;
+      this.midiNumber = noteIdentifier;
+    } else {
+      throw new Error("Invalid note identifier");
+    }
+  }
+
+  public get frequency(): number {
+    return MidiNote.A4 * Math.pow(2, (this.midiNumber - 69) / 12);
+  }
 }
 
 /**
@@ -43,29 +44,10 @@ export function appendOctave(notes: string[]): string[] {
     const cur = notes[i][0];
     newNotes.push(notes[i] + octave);
     const next = notes[i + 1][0];
-    if (Pitch[cur as keyof typeof Pitch] > Pitch[next as keyof typeof Pitch]) {
+    if (Note.getPitchClass(cur) > Note.getPitchClass(next)) {
       octave++;
     }
   }
   newNotes.push(notes[notes.length - 1] + octave);
   return newNotes;
-}
-
-/**
- * Convert a note string to midi number
- * @param str note string
- * @returns midi number
- */
-export function toMidi(str: string): number {
-  const matches = str.match(/^([A-G])(b|bb|#|##)?(\d)$/);
-
-  if (!matches) {
-    throw new Error("Invalid note");
-  }
-
-  const pitch = Pitch[matches[1] as keyof typeof Pitch];
-  const accidental = Accidental[matches[2] as keyof typeof Accidental] ?? 0;
-  const octave = Number.parseInt(matches[3]) as Octave;
-
-  return (octave + 1) * 12 + pitch + accidental;
 }

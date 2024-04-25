@@ -1,20 +1,13 @@
 import { parseNote } from "./parser";
 
-export enum PitchClass {
-  C = 0,
-  D = 2,
-  E = 4,
-  F = 5,
-  G = 7,
-  A = 9,
-  B = 11,
-}
-
-export enum Accidental {
-  "##" = 2,
-  "#" = 1,
-  "b" = -1,
-  "bb" = -2,
+export function accLiteralToOffset(accLiteral: string): number {
+  const accMap: Record<string, number> = {
+    "##": 2,
+    "#": 1,
+    "b": -1,
+    "bb": -2,
+  };
+  return accMap[accLiteral] ?? 0;
 }
 
 const noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
@@ -34,7 +27,7 @@ export class Note {
     if (typeof noteIdentifier === "string") {
       this.pitchClass = Note.getPitchClass(noteIdentifier);
     } else if (typeof noteIdentifier === "number") {
-      this.pitchClass = noteIdentifier;
+      this.pitchClass = noteIdentifier % 12;
     } else {
       throw new Error("Invalid note identifier");
     }
@@ -67,6 +60,10 @@ export class Note {
     return basePitch + acc;
   }
 
+  public static alter(noteLiteral: string, semitones: number): string {
+    return Note.get(noteLiteral).alter(semitones).as(noteLiteral[0]);
+  }
+
   public alter(semitones: number): Note {
     return Note.get(this.pitchClass + semitones);
   }
@@ -85,10 +82,20 @@ export class Note {
    * @param str string representation of a note
    * @returns pitch class of the note
    */
-  private static getPitchClass(noteLiteral: string): number {
+  public static getPitchClass(noteLiteral: string): number {
+    const pitchClassMap: Record<string, number> = {
+      "C": 0,
+      "D": 2,
+      "E": 4,
+      "F": 5,
+      "G": 7,
+      "A": 9,
+      "B": 11,
+    };
+
     const [base, acc] = parseNote(noteLiteral);
-    const accOffset = Accidental[acc as keyof typeof Accidental] ?? 0;
-    const basePitchClass = PitchClass[base as keyof typeof PitchClass];
+    const accOffset = accLiteralToOffset(acc);
+    const basePitchClass = pitchClassMap[base];
     const pitchClass = (basePitchClass + accOffset) % 12;
     return pitchClass;
   }

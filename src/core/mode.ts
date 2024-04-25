@@ -1,4 +1,4 @@
-import { Accidental, Note } from "./note";
+import { Note, accLiteralToOffset } from "./note";
 import { parseDegree } from "./parser";
 
 export class Mode {
@@ -36,16 +36,22 @@ export class Mode {
     }
   }
 
+  /**
+   * Get the note at the given index
+   *
+   * @param noteIndex index of the note in the scale, can be a number or a string, when using string, the format is <accidental><degree>
+   * @returns the note at the given index as its name
+   */
   public note(noteIndex: number): string;
   public note(noteIndex: string): string;
   public note(arg: number | string): string {
-    let acc = null;
+    let acc = 0;
     let degree;
     if (typeof arg === "number") {
       degree = arg;
     } else if (typeof arg === "string") {
       const [accString, degreeString] = parseDegree(arg);
-      acc = Accidental[accString as keyof typeof Accidental] ?? 0;
+      acc = accLiteralToOffset(accString);
       degree = parseInt(degreeString);
     } else {
       throw new Error("Invalid note identifier");
@@ -63,43 +69,50 @@ export class Mode {
     if (note === undefined) {
       throw new Error("Invalid note index");
     }
-    if (acc) {
-      note = Note.get(note).alter(acc).as(note[0]);
-    }
+    note = Note.alter(note, acc);
+
     return note;
   }
 
-  public notes(noteIndice: number[]): string[]
-  public notes(noteIndice: string[]): string[]
-  public notes(arg: number[] | string[]): string[] {
-    let acc = null;
-    let degree;
-    if (typeof arg === "number") {
-      degree = arg;
-    } else if (typeof arg === "string") {
-      const [accString, degreeString] = parseDegree(arg);
-      acc = Accidental[accString as keyof typeof Accidental] ?? 0;
-      degree = parseInt(degreeString);
-    } else {
-      throw new Error("Invalid note identifier");
+  /**
+   * Get the notes at the given indices
+   *
+   * @param noteIndice  indices of the notes in the scale, can be a number or a string, when using string, the format is <accidental><degree>
+   * @returns the notes at the given indices as their names
+   */
+  public notes(noteIndice: number[]): string[];
+  public notes(noteIndice: string[]): string[];
+  public notes(args: number[] | string[]): string[] {
+    let degrees = [];
+    let accs = [];
+    if (args.length === 0) {
+      throw new Error("No note indices provided");
+    } else if (typeof args[0] === "number") {
+      degrees = args as number[];
+    } else if (typeof args[0] === "string") {
+      for (const arg of args as string[]) {
+        const [accLiteral, degreeLiteral] = parseDegree(arg);
+        accs.push(accLiteralToOffset(accLiteral));
+        degrees.push(parseInt(degreeLiteral));
+      }
     }
 
     const scale = this.scale();
 
-    let note;
+    let curIndex = 0;
+    let resultNotes = [];
 
-    while (degree > 0) {
-      note = scale.next().value;
-      degree--;
+    while (degrees.length > 0) {
+      const curNote = scale.next().value;
+      curIndex++;
+      if (degrees[0] === curIndex) {
+        degrees.shift();
+        const acc = accs.shift() ?? 0;
+        const note = Note.alter(curNote, acc);
+        resultNotes.push(note);
+      }
     }
 
-    if (note === undefined) {
-      throw new Error("Invalid note index");
-    }
-    if (acc) {
-      note = Note.get(note).alter(acc).as(note[0]);
-    }
-    return note;
+    return resultNotes;
   }
-
 }
