@@ -1,11 +1,5 @@
 import { Chord } from "..";
-import {
-  MidiNote,
-  SingleNote,
-  MultiNote,
-  appendOctave,
-  toFrequency,
-} from "../core/note";
+import { appendOctave, toFrequency } from "../core/note";
 
 export type ASDREnvelope = {
   attack: number;
@@ -29,16 +23,12 @@ export abstract class Instrument {
     this.gainNode.connect(Instrument.audioContext.destination);
   }
 
-  public playNote(
-    note: SingleNote,
-    velocity: number = 1,
-    time: number = 1
-  ): void {
+  public playNote(note: string, velocity: number = 1, time: number = 1): void {
     this.attack(note, velocity, time);
   }
 
   public playChord(
-    chord: MultiNote,
+    chord: string | string[],
     velocity: number = 1,
     time: number = 1
   ): void {
@@ -49,7 +39,7 @@ export abstract class Instrument {
   }
 
   public playArpeggio(
-    arpeggio: MultiNote,
+    arpeggio: string | string[],
     velocity: number = 1,
     time: number = 1
   ): void {
@@ -78,11 +68,7 @@ export abstract class Instrument {
     this.gainNode.connect(Instrument.audioContext.destination);
   }
 
-  private attack(
-    note: SingleNote | MidiNote,
-    velocity: number,
-    time: number
-  ): void {
+  private attack(note: string | number, velocity: number, time: number): void {
     this.setUpGainNode(velocity, time);
 
     const oscillator = this.createOscillator(toFrequency(note));

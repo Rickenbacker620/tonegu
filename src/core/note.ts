@@ -1,4 +1,6 @@
-export enum Pitch {
+import { parseNote } from "./parser";
+
+export enum PitchClass {
   C = 0,
   D = 2,
   E = 4,
@@ -15,105 +17,79 @@ export enum Accidental {
   "bb" = -2,
 }
 
-export const noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
+const noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
 
-export type Octave = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export class Note {
+  public readonly pitchClass: number;
 
-let A4 = 440;
-
-/**
- * Set the frequency of A4
- * @param frequency set the frequency of A4
- */
-export function setA4(frequency: number): void {
-  A4 = frequency;
-}
-
-/**
- * Return the frequency of A4
- * @returns A4 frequency
- */
-export function getA4(): number {
-  return A4;
-}
-
-/**
- * Convert a note string or midi number to frequency
- * @param arg note string or midi number to be converted to frequency
- * @returns frequency of the note
- */
-export function toFrequency(arg: number | string): number {
-  if (typeof arg === "string") {
-    arg = toMidi(arg);
-  }
-
-  return A4 * Math.pow(2, (arg - 69) / 12);
-}
-
-/**
- * Convert a note string to midi number
- * @param str note string
- * @returns midi number
- */
-export function toMidi(str: string): number {
-  const matches = str.match(/^([A-G])(b|bb|#|##)?(\d)$/);
-
-  if (!matches) {
-    throw new Error("Invalid note");
-  }
-
-  const pitch = Pitch[matches[1] as keyof typeof Pitch];
-  const accidental = Accidental[matches[2] as keyof typeof Accidental] ?? 0;
-  const octave = Number.parseInt(matches[3]) as Octave;
-
-  return (octave + 1) * 12 + pitch + accidental;
-}
-
-/**
- * Convert a note string to note index, only include C, D, E, F, G, A, B, no accidentals
- * @param note note string
- * @returns note index
- */
-export function toNoteIndex(note: string): number {
-  const index = noteSequence.indexOf(note[0]);
-  return index;
-}
-
-/**
- * Convert a note string to pitch class
- *
- * @param str string representation of a note
- * @returns pitch class of the note
- */
-export function toPitchClass(str: string): number {
-  const matches = str.match(/^([A-G])(b|bb|#|##)?$/);
-
-  if (!matches) {
-    throw new Error("Invalid note");
-  }
-
-  const pitch = Pitch[matches[1] as keyof typeof Pitch];
-  const accidental = Accidental[matches[2] as keyof typeof Accidental] ?? 0;
-
-  return (pitch + accidental) % 12;
-}
-
-/**
- * Append octave to notes, starting from octave 4
- * @param notes
- * @returns notes with octave
- */
-export function appendOctave(notes: string[]): string[] {
-  const newNotes = [];
-  let octave = 4;
-  for (let i = 0; i < notes.length - 1; i++) {
-    const cur = notes[i][0];
-    newNotes.push(notes[i] + octave);
-    const next = notes[i + 1][0];
-    if (Pitch[cur as keyof typeof Pitch] > Pitch[next as keyof typeof Pitch]) {
-      octave++;
+  public static *sequenceFrom(from: string): Generator<string> {
+    let startIndex = noteSequence.indexOf(from);
+    while (true) {
+      yield noteSequence[startIndex];
+      startIndex = (startIndex + 1) % 7;
     }
   }
-  newNotes.push(notes[notes.length - 1] + octave);
-  return newNotes;
+
+  constructor(noteIdentifier: string | number) {
+    if (typeof noteIdentifier === "string") {
+      this.pitchClass = Note.getPitchClass(noteIdentifier);
+    } else if (typeof noteIdentifier === "number") {
+      this.pitchClass = noteIdentifier;
+    } else {
+      throw new Error("Invalid note identifier");
+    }
+  }
+
+  public static get(noteLiteral: string): Note;
+  public static get(pitchClass: number): Note;
+  public static get(arg: string | number): Note {
+    return new Note(arg);
+  }
+
+  /**
+   * Convert a note to another note in the same octave
+   * @param basePitch base note C, D, E, F, G, A, B
+   * @returns note based on the basePitch
+   */
+  public as(basePitch: string): string {
+    const base = Note.get(basePitch);
+    let offset = (this.pitchClass - base.pitchClass) % 12;
+
+    if (offset > 6) {
+      offset -= 12;
+    }
+    if (offset < -6) {
+      offset += 12;
+    }
+
+    const acc = offset > 0 ? "#".repeat(offset) : "b".repeat(-offset);
+
+    return basePitch + acc;
+  }
+
+  public alter(semitones: number): Note {
+    return Note.get(this.pitchClass + semitones);
+  }
+
+  public sharp(semitones: number = 1): Note {
+    return this.alter(semitones);
+  }
+
+  public flat(semitones: number = 1): Note {
+    return this.alter(-semitones);
+  }
+
+  /**
+   * Convert a note string to pitch class
+   *
+   * @param str string representation of a note
+   * @returns pitch class of the note
+   */
+  private static getPitchClass(noteLiteral: string): number {
+    const [base, acc] = parseNote(noteLiteral);
+    const accOffset = Accidental[acc as keyof typeof Accidental] ?? 0;
+    const basePitchClass = PitchClass[base as keyof typeof PitchClass];
+    const pitchClass = (basePitchClass + accOffset) % 12;
+    return pitchClass;
+  }
 }

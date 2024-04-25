@@ -10,6 +10,7 @@ const chordTestCases = [
   { name: "Cdim", notes: ["C", "Eb", "Gb"], bassNote: "C" },
   { name: "C", notes: ["C", "E", "G"], bassNote: "C" },
   { name: "Caug", notes: ["C", "E", "G#"], bassNote: "C" },
+  { name: "C#maj7", notes: ["C#", "E#", "G#", "B#"], bassNote: "C#" },
   { name: "Gmaj7", notes: ["G", "B", "D", "F#"], bassNote: "G" },
   { name: "F#m9", notes: ["F#", "A", "C#", "E", "G#"], bassNote: "F#" },
   { name: "Bb7", notes: ["Bb", "D", "F", "Ab"], bassNote: "Bb" },
@@ -21,4 +22,29 @@ describe.each(chordTestCases)("$name", ({ name, notes }) => {
   test(`Components: ${notes}`, () => {
     expect(new Chord(name).notes).toEqual(notes);
   });
+});
+
+class Fibonacci {
+  public name: string = "Fibo";
+  [Symbol.iterator]() {
+    let a = 0,
+      b = 1;
+    return {
+      next() {
+        let rval = { value: b, done: false };
+        b += a;
+        a = rval.value;
+        return rval;
+      },
+    };
+  }
+}
+
+test("NeoChord", () => {
+  const fib = new Fibonacci();
+  console.log(fib.name)
+  for (const num of fib) {
+    console.log(num);
+    if (num > 100) break;
+  }
 });
