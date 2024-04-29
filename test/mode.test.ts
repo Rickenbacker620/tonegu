@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Mode } from "./mode";
+import { Mode } from "../src/mode";
 
 const AsharpScaleTestCase: { index: string; name: string }[] = [
   { index: "1", name: "A#" },

@@ -1,4 +1,4 @@
-import * as MusicParser from "./parser";
+import * as MusicParser from "../src/parser";
 import { describe, expect, test } from "vitest";
 
 const chordTestCases = [

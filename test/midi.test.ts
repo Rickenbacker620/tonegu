@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { MidiNote, appendOctave } from "./midi";
+import { MidiNote, appendOctave } from "../src/midi";
 
 const noteWithOctaveTestCase = [
   { note: "A0", midi: 21, frequency: 27.5 },
