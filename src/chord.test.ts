@@ -1,5 +1,5 @@
 import { expect, test, describe } from "vitest";
-import { Chord } from "./chords";
+import { Chord } from "./chord";
 
 const chordTestCases = [
   { name: "Cmaj", notes: ["C", "E", "G"], bassNote: "C" },

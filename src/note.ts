@@ -96,7 +96,7 @@ export class Note {
     const [base, acc] = parseNote(noteLiteral);
     const accOffset = accLiteralToOffset(acc);
     const basePitchClass = pitchClassMap[base];
-    const pitchClass = (basePitchClass + accOffset) % 12;
+    const pitchClass = (basePitchClass + accOffset + 12) % 12;
     return pitchClass;
   }
 }
