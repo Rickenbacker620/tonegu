@@ -48,7 +48,6 @@ export class Mode {
   public note(noteIndex: number): string;
   public note(noteIndex: string): string;
   public note(arg: number | string): string {
-    console.log(1)
     let acc = 0;
     let degree;
     if (typeof arg === "number") {

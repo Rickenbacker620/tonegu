@@ -10,15 +10,22 @@ export function accLiteralToOffset(accLiteral: string): number {
   return accMap[accLiteral] ?? 0;
 }
 
-const noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
 
 export class Note {
   public readonly pitchClass: number;
 
+  private static noteSequence = ["C", "D", "E", "F", "G", "A", "B"];
+
+  /**
+   * Generate a sequence of notes starting from the given note, without accidentals
+   *
+   * @param from starting note
+   * @returns a generator that generates notes in the sequence
+   */
   public static *sequenceFrom(from: string): Generator<string> {
-    let startIndex = noteSequence.indexOf(from);
+    let startIndex = Note.noteSequence.indexOf(from);
     while (true) {
-      yield noteSequence[startIndex];
+      yield Note.noteSequence[startIndex];
       startIndex = (startIndex + 1) % 7;
     }
   }
@@ -83,6 +90,7 @@ export class Note {
    * @returns pitch class of the note
    */
   public static getPitchClass(noteLiteral: string): number {
+
     const pitchClassMap: Record<string, number> = {
       "C": 0,
       "D": 2,

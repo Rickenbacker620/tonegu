@@ -19,8 +19,38 @@ const chordTestCases = [
   { name: "C/F", notes: ["F", "C", "E", "G"], bassNote: "F" },
 ];
 
+const progressionTestCases = [
+  {
+    key: "C",
+    progression: ["2", "b5", "1sus2"],
+    expected: ["D", "Gb", "Csus2"],
+  },
+
+  {
+    key: "C",
+    progression: ["2", "b5", "1sus2", "b3"],
+    expected: ["D", "Gb", "Csus2", "Eb"],
+  },
+
+  {
+    key: "G",
+    progression: ["2", "b5", "1sus2"],
+    expected: ["A", "Db", "Gsus2"],
+  },
+];
+
 describe.each(chordTestCases)("$name", ({ name, notes }) => {
   test(`Components: ${notes}`, () => {
     expect(Chord.get(name).notes).toEqual(notes);
   });
 });
+
+describe.each(progressionTestCases)(
+  "Progression in $key",
+  ({ key, progression, expected }) => {
+    test(`Chords: ${progression}`, () => {
+      const chords = Chord.progression(key, progression);
+      expect(chords.map((chord) => chord.name)).toEqual(expected);
+    });
+  }
+);

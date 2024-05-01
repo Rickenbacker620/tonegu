@@ -27,7 +27,7 @@ export class Chord {
       throw new Error(`Invalid chord quality: ${quality}`);
     } else {
       this.name = name;
-      this.bassNote = bass;
+      this.bassNote = bass ?? root;
       this.rootNote = root;
       this.notes = scale.notes(result.notes);
     }
@@ -60,5 +60,17 @@ export class Chord {
       notes.push(notes.shift() as string);
     }
     return notes;
+  }
+
+  public static progression(key: string, chords: string[]): Chord[] {
+    const absoluteChords = chords.map((chord) => {
+      const [rootRaw, quality, bassRaw] = parseChord(chord, true);
+      const root = this.ionian.on(key).note(rootRaw);
+      const bass = bassRaw ? this.ionian.note(bassRaw) : null;
+      const absoluteChordLiteral = `${root}${quality}${bass ? `/${bass}` : ""}`;
+      return this.get(absoluteChordLiteral);
+    });
+
+    return absoluteChords;
   }
 }

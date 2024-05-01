@@ -4,10 +4,27 @@ const DEGREE_REGEX = "[1-9]|1[0-5]";
 
 const ACCIDENTAL_REGEX = "(?:##|bb|#|b)";
 
+const CHORD_DEGREE_REGEX = `(?:${ACCIDENTAL_REGEX}?)[1-7]`;
+
 const NOTE_REGEX = `${BASE_NOTE_REGEX}${ACCIDENTAL_REGEX}?`;
 
-export function parseChord(chordLiteral: string) {
-  const REGEX = `^(${NOTE_REGEX})(.*?)(?:/(${NOTE_REGEX}))?$`;
+
+export function parseChord(chordLiteral: string, relative: boolean = false) {
+  let REGEX = ""
+
+  if (relative) {
+    REGEX = `^(${CHORD_DEGREE_REGEX})(.*?)(?:/(${CHORD_DEGREE_REGEX}))?$`;
+    const matches = chordLiteral.match(new RegExp(REGEX));
+    if (!matches) {
+      throw new Error(`Invalid chord literal: ${chordLiteral}`);
+    }
+
+    const result = [matches[1], matches[2], matches[3]];
+
+    return result;
+  }
+
+  REGEX = `^(${NOTE_REGEX})(.*?)(?:/(${NOTE_REGEX}))?$`;
 
   const matches = chordLiteral.match(new RegExp(REGEX));
   if (!matches) {
