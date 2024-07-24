@@ -41,7 +41,7 @@ const progressionTestCases = [
 
 describe.each(chordTestCases)("$name", ({ name, notes }) => {
   test(`Components: ${notes}`, () => {
-    expect(Chord.get(name).notes).toEqual(notes);
+    expect(Chord.get(name).notes.map((e) => e.name)).toEqual(notes);
   });
 });
 

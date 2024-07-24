@@ -1,87 +1,222 @@
 [
   {
     "name": "major triad",
-    "notes": ["1", "3", "5"],
-    "notations": ["maj", "M", ""]
+    "notes": [
+      "1",
+      "3",
+      "5"
+    ],
+    "notations": [
+      "maj",
+      "M",
+      ""
+    ]
   },
   {
     "name": "minor triad",
-    "notes": ["1", "b3", "5"],
-    "notations": ["min", "m", "-"]
+    "notes": [
+      "1",
+      "b3",
+      "5"
+    ],
+    "notations": [
+      "min",
+      "m",
+      "-"
+    ]
   },
   {
     "name": "diminished triad",
-    "notes": ["1", "b3", "b5"],
-    "notations": ["dim"]
+    "notes": [
+      "1",
+      "b3",
+      "b5"
+    ],
+    "notations": [
+      "dim"
+    ]
   },
   {
     "name": "augmented triad",
-    "notes": ["1", "3", "#5"],
-    "notations": ["aug"]
+    "notes": [
+      "1",
+      "3",
+      "#5"
+    ],
+    "notations": [
+      "aug"
+    ]
   },
   {
     "name": "suspended second",
-    "notes": ["1", "2", "5"],
-    "notations": ["sus2"]
+    "notes": [
+      "1",
+      "2",
+      "5"
+    ],
+    "notations": [
+      "sus2"
+    ]
   },
   {
     "name": "suspended fourth",
-    "notes": ["1", "4", "5"],
-    "notations": ["sus4", "sus"]
+    "notes": [
+      "1",
+      "4",
+      "5"
+    ],
+    "notations": [
+      "sus4",
+      "sus"
+    ]
   },
   {
     "name": "dominant seventh",
-    "notes": ["1", "3", "5", "b7"],
-    "notations": ["7", "dom7"]
+    "notes": [
+      "1",
+      "3",
+      "5",
+      "b7"
+    ],
+    "notations": [
+      "7",
+      "dom7"
+    ]
   },
   {
     "name": "major seventh",
-    "notes": ["1", "3", "5", "7"],
-    "notations": ["maj7", "M7"]
+    "notes": [
+      "1",
+      "3",
+      "5",
+      "7"
+    ],
+    "notations": [
+      "maj7",
+      "M7"
+    ]
   },
   {
     "name": "minor seventh",
-    "notes": ["1", "b3", "5", "b7"],
-    "notations": ["m7", "min7"]
+    "notes": [
+      "1",
+      "b3",
+      "5",
+      "b7"
+    ],
+    "notations": [
+      "m7",
+      "min7"
+    ]
   },
   {
     "name": "minor-major seventh",
-    "notes": ["1", "b3", "5", "7"],
-    "notations": ["minmaj7", "mM7", "mmaj7"]
+    "notes": [
+      "1",
+      "b3",
+      "5",
+      "7"
+    ],
+    "notations": [
+      "minmaj7",
+      "mM7",
+      "mmaj7"
+    ]
   },
   {
     "name": "augmented-major seventh",
-    "notes": ["1", "3", "#5", "7"],
-    "notations": ["maj7#5", "maj7+5", "maj7aug", "M7+5"]
+    "notes": [
+      "1",
+      "3",
+      "#5",
+      "7"
+    ],
+    "notations": [
+      "maj7#5",
+      "maj7+5",
+      "maj7aug",
+      "M7+5"
+    ]
   },
   {
     "name": "augmented seventh",
-    "notes": ["1", "3", "#5", "b7"],
-    "notations": ["7#5", "7+5", "7aug"]
+    "notes": [
+      "1",
+      "3",
+      "#5",
+      "b7"
+    ],
+    "notations": [
+      "7#5",
+      "7+5",
+      "7aug"
+    ]
   },
   {
     "name": "half-diminished seventh",
-    "notes": ["1", "b3", "b5", "b7"],
-    "notations": ["m7b5", "min7b5", "m7(b5)"]
+    "notes": [
+      "1",
+      "b3",
+      "b5",
+      "b7"
+    ],
+    "notations": [
+      "m7b5",
+      "min7b5",
+      "m7(b5)"
+    ]
   },
   {
     "name": "diminished seventh",
-    "notes": ["1", "b3", "b5", "bb7"],
-    "notations": ["dim7"]
+    "notes": [
+      "1",
+      "b3",
+      "b5",
+      "bb7"
+    ],
+    "notations": [
+      "dim7"
+    ]
   },
   {
     "name": "dominant seventh flat five",
-    "notes": ["1", "3", "b5", "b7"],
-    "notations": ["7b5", "7-5"]
+    "notes": [
+      "1",
+      "3",
+      "b5",
+      "b7"
+    ],
+    "notations": [
+      "7b5",
+      "7-5"
+    ]
   },
   {
     "name": "dominant ninth",
-    "notes": ["1", "3", "5", "b7", "9"],
-    "notations": ["9", "dom9"]
+    "notes": [
+      "1",
+      "3",
+      "5",
+      "b7",
+      "9"
+    ],
+    "notations": [
+      "9",
+      "dom9"
+    ]
   },
   {
     "name": "dominant minor ninth",
-    "notes": ["1", "b3", "5", "b7", "9"],
-    "notations": ["m9", "min9"]
+    "notes": [
+      "1",
+      "b3",
+      "5",
+      "b7",
+      "9"
+    ],
+    "notations": [
+      "m9",
+      "min9"
+    ]
   }
 ]

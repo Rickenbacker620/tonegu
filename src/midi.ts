@@ -1,14 +1,9 @@
 import { Note } from "./note";
 
 export class MidiNote extends Note {
-  public static getMidi(noteliteral: string | number): MidiNote {
-    return new MidiNote(noteliteral);
-  }
-
+  public static A4 = 440;
   public readonly midiNumber: number;
   public readonly octave: number;
-
-  public static A4 = 440;
 
   constructor(noteIdentifier: string | number) {
     if (typeof noteIdentifier === "string") {
@@ -23,12 +18,16 @@ export class MidiNote extends Note {
       this.octave = Math.floor(noteIdentifier / 12) - 1;
       this.midiNumber = noteIdentifier;
     } else {
-      throw new Error("Invalid note identifier");
+      throw new Error(`Invalid note identifier ${noteIdentifier}`);
     }
   }
 
   public get frequency(): number {
     return MidiNote.A4 * Math.pow(2, (this.midiNumber - 69) / 12);
+  }
+
+  public static getMidi(noteliteral: string | number): MidiNote {
+    return new MidiNote(noteliteral);
   }
 }
 

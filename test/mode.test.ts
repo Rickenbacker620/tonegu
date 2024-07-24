@@ -23,17 +23,17 @@ const CmajorScaleTestCase: { index: string; name: string }[] = [
 ];
 
 describe.each(AsharpScaleTestCase)("A sharps cale", ({ index, name }) => {
-  const ionianA = Mode.get("ionian").on("A#");
+  const ionianA = Mode.get("A#", "ionian")
   test(`Note ${index} is ${name}`, () => {
     const note = ionianA.note(index);
-    expect(note).toBe(name);
+    expect(note.name).toBe(name);
   });
 });
 
 describe.each(CmajorScaleTestCase)("C major scale", ({ index, name }) => {
-  const ionianC = Mode.get("ionian").on("C");
+  const ionianC = Mode.get("C", "ionian")
   test(`Note ${index} is ${name}`, () => {
     const note = ionianC.note(index);
-    expect(note).toBe(name);
+    expect(note.name).toBe(name);
   });
 });

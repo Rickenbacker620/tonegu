@@ -2,7 +2,7 @@ const BASE_NOTE_REGEX = "[A-G]";
 
 const DEGREE_REGEX = "[1-9]|1[0-5]";
 
-const ACCIDENTAL_REGEX = "(?:##|bb|#|b)";
+const ACCIDENTAL_REGEX = "(?:[b#]{1,})";
 
 const CHORD_DEGREE_REGEX = `(?:${ACCIDENTAL_REGEX}?)[1-7]`;
 
@@ -10,7 +10,7 @@ const NOTE_REGEX = `${BASE_NOTE_REGEX}${ACCIDENTAL_REGEX}?`;
 
 
 export function parseChord(chordLiteral: string, relative: boolean = false) {
-  let REGEX = ""
+  let REGEX = "";
 
   if (relative) {
     REGEX = `^(${CHORD_DEGREE_REGEX})(.*?)(?:/(${CHORD_DEGREE_REGEX}))?$`;

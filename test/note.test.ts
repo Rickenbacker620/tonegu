@@ -21,10 +21,42 @@ const noteTestCase: { noteLiteral: string; pitchClass: number }[] = [
   { noteLiteral: "E##", pitchClass: 6 },
 ];
 
-describe.each(noteTestCase)("Note $note", ({ noteLiteral, pitchClass }) => {
+describe.each(noteTestCase)("Note $noteLiteral", ({ noteLiteral, pitchClass }) => {
   const note = Note.get(noteLiteral);
 
   test(`Pitch class: ${pitchClass}`, () => {
     expect(note.pitchClass).toBe(pitchClass);
+  });
+});
+
+describe("Alter note test", () => {
+  const note = new Note("C");
+
+  test("Sharp", () => {
+    expect(note.sharp(3).as("C").name).toBe("C###");
+  });
+
+  test("Sharp as D", () => {
+    expect(note.sharp(3).as("D").name).toBe("D#");
+  });
+
+  test("Flat", () => {
+    expect(note.flat(3).as("C").name).toBe("Cbbb");
+  });
+
+  test("Flat as B", () => {
+    expect(note.flat(3).as("B").name).toBe("Bbb");
+  });
+
+  test("Alter", () => {
+    expect(Note.alter("C", 3)).toBe("C###");
+  });
+
+  test("Note equals", () => {
+    expect(note.equals("C")).toBe(true);
+  });
+
+  test("Note not equals", () => {
+    expect(note.equals("D")).toBe(false);
   });
 });

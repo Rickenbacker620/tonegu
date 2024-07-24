@@ -1,32 +1,28 @@
-import { Note, accLiteralToOffset } from "./note";
+import { accLiteralToOffset, Note } from "./note";
 import { parseDegree } from "./parser";
 
 export class Mode {
-  private key: string = "C";
   public static modeMap: Record<string, number> = {
-    "ionian": 2741,
+    "ionian": 2741
   };
-  constructor(protected modeNumber: number) {}
 
-  public static get(modeLiteral: string) {
+  constructor(protected key: string, protected modeNumber: number) {
+  }
+
+  public static get(key: string, modeLiteral: string) {
     if (!Mode.modeMap[modeLiteral]) {
       throw new Error(`Invalid mode: ${modeLiteral}`);
     }
-    return new Mode(Mode.modeMap[modeLiteral]);
-  }
-
-  public on(key: string) {
-    this.key = key;
-    return this;
+    return new Mode(key, Mode.modeMap[modeLiteral]);
   }
 
   /**
    * Generate the scale of the mode
    * @param raw if true, return the raw pitch class, else return string representation of the note
    */
-  public *scale(): Generator<string> {
+  public* scale(): Generator<Note> {
     const root = Note.get(this.key);
-    const seq = Note.sequenceFrom(this.key[0]);
+    const seq = Note.naturalSequenceFrom(this.key[0]);
     while (true) {
       for (let i = 0; i < 12; i++) {
         if (this.modeNumber & (1 << i)) {
@@ -45,9 +41,9 @@ export class Mode {
    * @param noteIndex index of the note in the scale, can be a number or a string, when using string, the format is <accidental><degree>
    * @returns the note at the given index as its name
    */
-  public note(noteIndex: number): string;
-  public note(noteIndex: string): string;
-  public note(arg: number | string): string {
+  public note(noteIndex: number): Note;
+  public note(noteIndex: string): Note;
+  public note(arg: number | string): Note {
     let acc = 0;
     let degree;
     if (typeof arg === "number") {
@@ -57,12 +53,12 @@ export class Mode {
       acc = accLiteralToOffset(accString);
       degree = parseInt(degreeString);
     } else {
-      throw new Error("Invalid note identifier");
+      throw new Error(`Invalid note identifier ${arg}`);
     }
 
     const scale = this.scale();
 
-    let note;
+    let note: Note | undefined;
 
     while (degree > 0) {
       note = scale.next().value;
@@ -72,9 +68,8 @@ export class Mode {
     if (note === undefined) {
       throw new Error("Invalid note index");
     }
-    note = Note.alter(note, acc);
 
-    return note;
+    return note.alter(acc);
   }
 
   /**
@@ -83,9 +78,9 @@ export class Mode {
    * @param noteIndice  indices of the notes in the scale, can be a number or a string, when using string, the format is <accidental><degree>
    * @returns the notes at the given indices as their names
    */
-  public notes(noteIndice: number[]): string[];
-  public notes(noteIndice: string[]): string[];
-  public notes(args: number[] | string[]): string[] {
+  public notes(noteIndice: number[]): Note[];
+  public notes(noteIndice: string[]): Note[];
+  public notes(args: number[] | string[]): Note[] {
     let degrees = [];
     let accs = [];
     if (args.length === 0) {
@@ -111,7 +106,7 @@ export class Mode {
       if (degrees[0] === curIndex) {
         degrees.shift();
         const acc = accs.shift() ?? 0;
-        const note = Note.alter(curNote, acc);
+        const note = curNote.alter(acc);
         resultNotes.push(note);
       }
     }
