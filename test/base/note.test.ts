@@ -1,5 +1,5 @@
 import { expect, describe, test } from "vitest";
-import { Note } from "../src/note";
+import { Note } from "../../src/base/note";
 
 const noteTestCase: { noteLiteral: string; pitchClass: number }[] = [
   { noteLiteral: "C", pitchClass: 0 },

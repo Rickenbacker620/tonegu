@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import * as MusicParser from "../src/parser";
+import * as MusicParser from "../../src/base/parser";
 
 const chordTestCases = [
   { name: "Cmaj", tokens: ["C", "maj", undefined] },

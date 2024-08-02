@@ -1,5 +1,6 @@
 import { expect, test, describe } from "vitest";
-import { Chord } from "../src/chord";
+import { Chord } from "../../src/base/chord";
+import { Note } from "../../src/base/note";
 
 const chordTestCases = [
   { name: "Cmaj", notes: ["C", "E", "G"], bassNote: "C" },
@@ -54,3 +55,10 @@ describe.each(progressionTestCases)(
     });
   }
 );
+
+// TODO: Should finish this
+test("From notes", () => {
+
+  const chord = Chord.fromNotes(["C", "E", "G"].map((note) => Note.get(note)));
+
+});
