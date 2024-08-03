@@ -1,44 +1,30 @@
-import { describe, assert, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import {
-  findGuitarPositionByNote,
-  findNoteByGuitarPosition,
-  getChordInfoByPosition,
-  getFretBoardInfosFromChord,
-  GuitarFretDetail,
-  GuitarFretPosition,
+  noteToPosition,
+  getInfosFromPosition,
+  getInfosFromChord,
+  GuitarPositionWithNote,
+  GuitarPosition
 } from "../../src/instrument/guitar";
 import { Note } from "../../src/base/note";
+import { Chord } from "../../src";
 
 const CGuitarPositions = [
   [undefined, 3, 2, 0, 1, 0],
   [undefined, 3, 5, 5, 5, 3],
   [8, 10, 10, 9, 8, 8],
-  [undefined, undefined, 10, 12, 13, 12],
+  [undefined, undefined, 10, 12, 13, 12]
 ];
 
-function produceResults() {
-  return CGuitarPositions.map((ps) => {
-    return {
-      chord: "C",
-      root: "C",
-      positions: ps.flatMap((fret, string) => {
-        if (fret === undefined) return [];
-        else
-          return [
-            new GuitarFretDetail(
-              6 - string,
-              fret,
-              findNoteByGuitarPosition(
-                new GuitarFretPosition(6 - string, fret)
-              ).name
-            ),
-          ];
-      }),
-    };
+function arrToPosition(arr: (number | undefined)[]) {
+  return arr.flatMap((fret, string) => {
+    if (fret === undefined) return [];
+    else return [new GuitarPosition(6 - string, fret)];
   });
 }
 
-const aa = [
+
+const notePositionsTestCase = [
   {
     noteLiteral: "C",
     positions: [
@@ -47,9 +33,9 @@ const aa = [
       [3, 5],
       [4, 10],
       [5, 3],
-      [6, 8],
+      [6, 8]
     ],
-    wholeFretOnString3: [5, 17],
+    allFretsOnString3: [5, 17]
   },
   {
     noteLiteral: "G##",
@@ -59,72 +45,59 @@ const aa = [
       [3, 2],
       [4, 7],
       [5, 0],
-      [6, 5],
+      [6, 5]
     ],
-    wholeFretOnString3: [2, 14],
-  },
+    allFretsOnString3: [2, 14]
+  }
 ];
 
-describe.each(aa)(
+describe.each(notePositionsTestCase)(
   "Note $noteLiteral on guitar",
-  ({ noteLiteral, positions, wholeFretOnString3 }) => {
+  ({ noteLiteral, positions, allFretsOnString3 }) => {
     const note = Note.get(noteLiteral);
-    const actual = new Set(findGuitarPositionByNote(note));
-    const expected = new Set(
-      positions.map(([string, fret]) => new GuitarFretPosition(string, fret))
-    );
+
 
     test(`Positions before fret 12`, () => {
-      assert.deepEqual(actual, expected);
+      const actual = new Set(noteToPosition(note));
+
+      const expected = new Set(positions.map(([string, fret]) => new GuitarPosition(string, fret)));
+
+      expect(actual).toEqual(expected);
     });
 
-    test(`Whole fret on string 3`, () => {
-      expect(findGuitarPositionByNote(note, 3, 22).map((e) => e.fret)).toEqual(
-        wholeFretOnString3
-      );
+    test(`All fret on string 3`, () => {
+      const actual = noteToPosition(note, 3, 22).map((e) => e.fret);
+
+      expect(actual).to.have.members(allFretsOnString3);
     });
   }
 );
 
-function positionContains(
-  actual: GuitarFretDetail[],
-  expected: GuitarFretDetail[]
-) {
-  return expected.every((e) => {
-    return actual.some((a) => a.equals(e));
+test("Get info from chord", () => {
+
+  const chordC = Chord.get("C");
+
+  const actual = getInfosFromChord(chordC).map((c) => {
+    return c.positions;
   });
-}
 
-test("Guitar test", () => {
-  const actual = getFretBoardInfosFromChord("C");
-  const expected = produceResults();
-
-  expected.forEach((e, i) => {
-    const isActualContainsExpected = actual.some((a) => {
-      return (
-        a.chord === e.chord &&
-        a.root === e.root &&
-        positionContains(a.positions, e.positions)
-      );
+  const expected = CGuitarPositions.map((ps) => {
+    return ps.flatMap((fret, string) => {
+      if (fret === undefined) return [];
+      else return [new GuitarPositionWithNote(6 - string, fret)];
     });
-    assert.isTrue(
-      isActualContainsExpected,
-      `Expected ${JSON.stringify(e)} not found`
-    );
   });
+
+  expect(actual).to.deep.contains.members(expected);
 });
 
-test("Note to chord", () => {
+test("Get info from positions", () => {
+  const Darr = [undefined, undefined, 0, 2, 3, 2];
+  const positions = arrToPosition(Darr);
 
-  const fp = [undefined, undefined, 0, 2,3,2]
+  const actual = getInfosFromPosition(positions);
 
-  const chords = getChordInfoByPosition(fp.flatMap((fret, string) => {
-    if (fret === undefined) return [];
-    else return [new GuitarFretPosition(6 - string, fret)];
-  }))
+  const expected = Chord.get("Dmaj");
 
-  for (const chord of chords) {
-    console.log(chord);
-  }
-
-})
+  expect(actual[0].chord).to.deep.equal(expected);
+});

@@ -5,31 +5,57 @@ import { Note } from "../base/note";
 import "lodash.permutations";
 import _ from "lodash";
 
-export class GuitarFretPosition {
-  constructor(public string: number, public fret: number) {}
+export class GuitarInfo {
+  constructor(
+    public chord: Chord,
+    public positions: GuitarPositionWithNote[]
+  ) {
+  }
 
-  equals(other: GuitarFretPosition) {
+  equals(other: GuitarInfo) {
+    return (
+      this.chord.equals(other.chord) &&
+      // FIXME: might need to fix
+      _.isEqual(this.positions, other.positions)
+    );
+  }
+}
+
+export class GuitarPosition {
+  constructor(public string: number, public fret: number) {
+  }
+
+  equals(other: GuitarPosition) {
     return this.string === other.string && this.fret === other.fret;
   }
 }
 
-export class GuitarFretDetail {
+export class GuitarPositionWithNote {
   constructor(
     public readonly string: number,
     public readonly fret: number,
-    public readonly note: string
-  ) {}
+    public readonly note: string = positionToNote(new GuitarPosition(string, fret)).name
+  ) {
+  }
 
-  equals(other: GuitarFretDetail) {
+  equals(other: GuitarPositionWithNote) {
     return (
       this.string === other.string &&
       this.fret === other.fret &&
       this.note === other.note
     );
   }
+
+  static fromGuitarPosition(position: GuitarPosition) {
+    return new GuitarPositionWithNote(
+      position.string,
+      position.fret,
+      positionToNote(position).name
+    );
+  }
 }
 
-function findGuitarPositionByNoteOnString(
+function noteToPositionOnString(
   note: Note,
   string: number,
   fretBefore: number = 12
@@ -39,21 +65,21 @@ function findGuitarPositionByNoteOnString(
   for (let fret = 0; fret < fretBefore; fret++) {
     const pitchClass = (emptyStringPitchClasses[string - 1] + fret) % 12;
     if (pitchClass === note.pitchClass) {
-      result.push(new GuitarFretPosition(string, fret));
+      result.push(new GuitarPosition(string, fret));
     }
   }
   return result;
 }
 
-export function findGuitarPositionByNote(
+export function noteToPosition(
   note: Note,
   string: number | undefined = undefined,
   fretBefore: number = 12
-): GuitarFretPosition[] {
+): GuitarPosition[] {
   let result: any[] = [];
 
   if (string) {
-    const resultOnString = findGuitarPositionByNoteOnString(
+    const resultOnString = noteToPositionOnString(
       note,
       string,
       fretBefore
@@ -61,7 +87,7 @@ export function findGuitarPositionByNote(
     result = result.concat(resultOnString);
   } else {
     for (let string = 1; string <= 6; string++) {
-      const resultOnString = findGuitarPositionByNoteOnString(
+      const resultOnString = noteToPositionOnString(
         note,
         string,
         fretBefore
@@ -73,7 +99,7 @@ export function findGuitarPositionByNote(
   return result;
 }
 
-export function findNoteByGuitarPosition(position: GuitarFretPosition): Note {
+export function positionToNote(position: GuitarPosition): Note {
   const emptyStringPitchClasses = [4, 11, 7, 2, 9, 4];
   const pitchClass =
     (emptyStringPitchClasses[position.string - 1] + position.fret) % 12;
@@ -87,17 +113,17 @@ export function findNoteByGuitarPosition(position: GuitarFretPosition): Note {
  * @returns
  */
 function positionValid(
-  position: GuitarFretPosition,
-  current: GuitarFretPosition[]
+  position: GuitarPosition,
+  current: GuitarPosition[]
 ) {
   const distanceValid = current
-    .filter((p) => p.fret != 0)
-    .every((p) => Math.abs(p.fret - position.fret) <= 4);
+  .filter((p) => p.fret != 0)
+  .every((p) => Math.abs(p.fret - position.fret) <= 4);
   return distanceValid;
 }
 
 function generateCombinations(
-  arrays: GuitarFretPosition[][],
+  arrays: GuitarPosition[][],
   rootString: number
 ) {
   const rootPos = arrays[0].filter((p) => p.string === rootString) ?? [];
@@ -110,9 +136,9 @@ function generateCombinations(
     Array.from({ length: 6 }, () => [])
   );
 
-  let result: GuitarFretPosition[][] = [];
+  let result: GuitarPosition[][] = [];
 
-  function helper(current: GuitarFretPosition[], string: number) {
+  function helper(current: GuitarPosition[], string: number) {
     if (string === 0) {
       result.push([...current]);
       return;
@@ -139,16 +165,11 @@ function generateCombinations(
   return result;
 }
 
-export function getFretBoardInfosFromChord(chordLiteral: string): {
-  chord: string;
-  root: string;
-  positions: GuitarFretDetail[];
-}[] {
-  const chord = Chord.get(chordLiteral);
+export function getInfosFromChord(chord: Chord) {
   const root = chord.rootNote;
 
   const notesWithPosition = chord.notes.map((note) => {
-    return findGuitarPositionByNote(note, undefined, 22);
+    return noteToPosition(note, undefined, 22);
   });
 
   const combinationsAll = [];
@@ -160,32 +181,25 @@ export function getFretBoardInfosFromChord(chordLiteral: string): {
 
   return combinationsAll.map((position) => {
     return {
-      chord: chordLiteral,
-      root: root.name,
+      chord: chord,
       positions: position.map(
         (p) =>
-          new GuitarFretDetail(
+          new GuitarPositionWithNote(
             p.string,
             p.fret,
-            findNoteByGuitarPosition(p).name
+            positionToNote(p).name
           )
-      ),
+      )
     };
   });
 }
 
-export function getChordInfoByPosition(positions: GuitarFretPosition[]) {
+export function getInfosFromPosition(positions: GuitarPosition[]) {
+  let chordInfos = [];
 
-  let chordInfos = []
-  const fretDetails = positions.map((p) => {
-    return new GuitarFretDetail(
-      p.string,
-      p.fret,
-      findNoteByGuitarPosition(p).name
-    );
-  });
+  const fretDetails = positions.map(GuitarPositionWithNote.fromGuitarPosition);
 
-  const notesRaw = fretDetails.map((f) => findNoteByGuitarPosition(f));
+  const notesRaw = fretDetails.map((f) => positionToNote(f));
 
   const rootNote = notesRaw[0];
 
@@ -206,12 +220,11 @@ export function getChordInfoByPosition(positions: GuitarFretPosition[]) {
     const chord = Chord.fromNotes(notesALl);
     if (chord) {
       chordInfos.push({
-        chord: chord.name,
-        root: rootNote.name,
-        positions: fretDetails,
+        chord: chord,
+        positions: fretDetails
       });
     }
   }
 
-  return chordInfos
+  return chordInfos;
 }
