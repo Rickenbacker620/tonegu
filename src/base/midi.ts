@@ -1,4 +1,4 @@
-import { Note } from "./note.ts";
+import { Note } from "./note";
 
 export class MidiNote extends Note {
   public static A4 = 440;

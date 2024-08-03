@@ -1,9 +1,9 @@
 import chordsList from "../chordsList.json";
-import { parseChord } from "./parser.ts";
-import { Note } from "./note.ts";
-import { Mode } from "./mode.ts";
+import { parseChord } from "./parser";
+import { Note } from "./note";
+import { Mode } from "./mode";
 
-import _, { isEqual } from "lodash";
+import _ from "lodash";
 
 export class Chord {
   private static chordsList = this.loadChordList();
@@ -104,11 +104,11 @@ export class Chord {
       const prev = notes[i - 1];
       if (prev.pitchClass > notes[i].pitchClass) {
         notePitchClasses.push(
-          notes[i].pitchClass + 12 - prev.pitchClass + notePitchClasses.at(-1)
+          notes[i].pitchClass + 12 - prev.pitchClass + (notePitchClasses.at(-1) ?? 0)
         );
       } else {
         notePitchClasses.push(
-          notes[i].pitchClass - prev.pitchClass + notePitchClasses.at(-1)
+          notes[i].pitchClass - prev.pitchClass + (notePitchClasses.at(-1) ?? 0)
         );
       }
     }

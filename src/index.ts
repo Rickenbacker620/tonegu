@@ -1,4 +1,6 @@
-export * from "./base/note.ts";
-export * from "./base/midi.ts";
-export * from "./base/mode.ts";
-export * from "./base/chord.ts";
+
+export * from "./base/note";
+export * from "./base/midi";
+export * from "./base/mode";
+export * from "./base/chord";
+export * from "./instrument/guitar";

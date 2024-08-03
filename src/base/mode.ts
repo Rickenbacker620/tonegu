@@ -1,5 +1,5 @@
-import { accLiteralToOffset, Note } from "./note.ts";
-import { parseDegree } from "./parser.ts";
+import { accLiteralToOffset, Note } from "./note";
+import { parseDegree } from "./parser";
 
 export class Mode {
   public static modeMap: Record<string, number> = {

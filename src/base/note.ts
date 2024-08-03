@@ -1,4 +1,4 @@
-import { parseNote } from "./parser.ts";
+import { parseNote } from "./parser";
 
 export function accLiteralToOffset(accLiteral: string): number {
   if (accLiteral === undefined) {

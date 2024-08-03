@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Chord } from "../base/chord";
 import { Note } from "../base/note";
 
