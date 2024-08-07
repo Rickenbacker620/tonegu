@@ -199,9 +199,10 @@ export function getInfosFromPosition(positions: GuitarPosition[]) {
 
   const fretDetails = positions.map(GuitarPositionWithNote.fromGuitarPosition);
 
+  const rootNoteRaw = _.maxBy(fretDetails, (n) => n.string)
   const notesRaw = fretDetails.map((f) => positionToNote(f));
 
-  const rootNote = notesRaw[0];
+  const rootNote = positionToNote(rootNoteRaw)
 
   const notesUnique = _.uniqBy(notesRaw, "pitchClass");
 

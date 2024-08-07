@@ -92,12 +92,13 @@ test("Get info from chord", () => {
 });
 
 test("Get info from positions", () => {
-  const Darr = [undefined, undefined, 0, 2, 3, 2];
-  const positions = arrToPosition(Darr);
+  const Darr = [undefined, 3, 2, 0, 1, 0];
+  // const Darr = [undefined, undefined, 0, 2, 3, 2];
+  const positions = arrToPosition(Darr).reverse();
 
   const actual = getInfosFromPosition(positions);
 
-  const expected = Chord.get("Dmaj");
+  const expected = Chord.get("Cmaj");
 
   expect(actual[0].chord).to.deep.equal(expected);
 });
