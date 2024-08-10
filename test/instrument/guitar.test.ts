@@ -2,9 +2,10 @@ import { describe, expect, test } from "vitest";
 import {
   noteToPosition,
   getInfosFromPosition,
-  getInfosFromChord,
+  getLayoutsFromChord,
   GuitarPositionWithNote,
-  GuitarPosition
+  GuitarPosition,
+  noteToPositionOnString
 } from "../../src/instrument/guitar";
 import { Note } from "../../src/base/note";
 import { Chord } from "../../src";
@@ -66,7 +67,7 @@ describe.each(notePositionsTestCase)(
     });
 
     test(`All fret on string 3`, () => {
-      const actual = noteToPosition(note, 3, 22).map((e) => e.fret);
+      const actual = noteToPositionOnString(note, 22).map((e) => e.fret);
 
       expect(actual).to.have.members(allFretsOnString3);
     });
@@ -75,11 +76,9 @@ describe.each(notePositionsTestCase)(
 
 test("Get info from chord", () => {
 
-  const chordC = Chord.get("C");
+  const chordC = Chord.get("C7");
 
-  const actual = getInfosFromChord(chordC).map((c) => {
-    return c.positions;
-  });
+  const actual = getLayoutsFromChord(chordC)
 
   const expected = CGuitarPositions.map((ps) => {
     return ps.flatMap((fret, string) => {
@@ -92,13 +91,14 @@ test("Get info from chord", () => {
 });
 
 test("Get info from positions", () => {
-  const Darr = [undefined, 3, 2, 0, 1, 0];
-  // const Darr = [undefined, undefined, 0, 2, 3, 2];
+  // const Darr = [undefined, 3, 2, 0, 1, 0];
+  // const Darr = [undefined, 3, 2, 0, 1, 0];
+  const Darr = [undefined, undefined, 0, 2, 3, 2];
   const positions = arrToPosition(Darr).reverse();
 
   const actual = getInfosFromPosition(positions);
 
   const expected = Chord.get("Cmaj");
 
-  expect(actual[0].chord).to.deep.equal(expected);
+  expect(actual[0]).to.deep.equal(expected);
 });

@@ -9,8 +9,7 @@ export class GuitarInfo {
   constructor(
     public chord: Chord,
     public positions: GuitarPositionWithNote[]
-  ) {
-  }
+  ) {}
 
   equals(other: GuitarInfo) {
     return (
@@ -22,11 +21,36 @@ export class GuitarInfo {
 }
 
 export class GuitarPosition {
-  constructor(public string: number, public fret: number) {
-  }
+  constructor(public string: number, public fret: number) {}
 
   equals(other: GuitarPosition) {
     return this.string === other.string && this.fret === other.fret;
+  }
+}
+
+export class GuitarPositionWithPichClass {
+  constructor(
+    public readonly string: number,
+    public readonly fret: number,
+    public readonly pitchClass: number = positionToNote(
+      new GuitarPosition(string, fret)
+    ).pitchClass
+  ) {}
+
+  equals(other: GuitarPositionWithPichClass) {
+    return (
+      this.string === other.string &&
+      this.fret === other.fret &&
+      this.pitchClass === other.pitchClass
+    );
+  }
+
+  static fromGuitarPosition(position: GuitarPosition) {
+    return new GuitarPositionWithPichClass(
+      position.string,
+      position.fret,
+      positionToNote(position).pitchClass
+    );
   }
 }
 
@@ -34,9 +58,10 @@ export class GuitarPositionWithNote {
   constructor(
     public readonly string: number,
     public readonly fret: number,
-    public readonly note: string = positionToNote(new GuitarPosition(string, fret)).name
-  ) {
-  }
+    public readonly note: string = positionToNote(
+      new GuitarPosition(string, fret)
+    ).name
+  ) {}
 
   equals(other: GuitarPositionWithNote) {
     return (
@@ -55,7 +80,7 @@ export class GuitarPositionWithNote {
   }
 }
 
-function noteToPositionOnString(
+export function noteToPositionOnString(
   note: Note,
   string: number,
   fretBefore: number = 12
@@ -73,27 +98,13 @@ function noteToPositionOnString(
 
 export function noteToPosition(
   note: Note,
-  string: number | undefined = undefined,
   fretBefore: number = 12
 ): GuitarPosition[] {
   let result: any[] = [];
 
-  if (string) {
-    const resultOnString = noteToPositionOnString(
-      note,
-      string,
-      fretBefore
-    );
+  for (let string = 1; string <= 6; string++) {
+    const resultOnString = noteToPositionOnString(note, string, fretBefore);
     result = result.concat(resultOnString);
-  } else {
-    for (let string = 1; string <= 6; string++) {
-      const resultOnString = noteToPositionOnString(
-        note,
-        string,
-        fretBefore
-      );
-      result = result.concat(resultOnString);
-    }
   }
 
   return result;
@@ -112,39 +123,56 @@ export function positionToNote(position: GuitarPosition): Note {
  * @param current
  * @returns
  */
-function positionValid(
-  position: GuitarPosition,
-  current: GuitarPosition[]
-) {
+function positionValid(position: GuitarPosition, current: GuitarPosition[]) {
   const distanceValid = current
-  .filter((p) => p.fret != 0)
-  .every((p) => Math.abs(p.fret - position.fret) <= 4);
+    .filter((p) => p.fret != 0)
+    .every((p) => Math.abs(p.fret - position.fret) <= 4);
   return distanceValid;
 }
 
-function generateCombinations(
-  arrays: GuitarPosition[][],
-  rootString: number
+function positionsContainsAllNotesInChord(
+  positions: GuitarPosition[],
+  chord: Chord
 ) {
-  const rootPos = arrays[0].filter((p) => p.string === rootString) ?? [];
+  const notes = positions.map((p) => positionToNote(p));
+  return chord.notes.every((n) => notes.some((p) => p.equals(n)));
+}
 
-  const positionsGroupByString = arrays.flat(1).reduce(
-    (acc, pos) => {
-      acc[pos.string - 1].push(pos);
-      return acc;
-    },
-    Array.from({ length: 6 }, () => [])
+function generateCombinations(noteToPositionMap, chord, bassString: number) {
+  // console.log(noteToPositionMap[0], bass, bassString)
+
+  // const rootPos = arrays[0].filter((p) => p.string === rootString) ?? [];
+  const positionsWithNote = noteToPositionMap.flatMap((n) =>
+    n.positions.map((p) => {
+      return {
+        note: n.note,
+        ...p,
+      };
+    })
   );
+  const positionsWithNoteGroupByString = _.groupBy(positionsWithNote, "string");
+
+  const positionsBass = positionsWithNote.filter(
+    (p) =>
+      p.string === bassString && p.note.pitchClass === chord.bassNote.pitchClass
+  );
+
+  const positionsRest = _.chain(positionsWithNote)
+    .filter((p) => p.string < bassString)
+    .groupBy("string")
+    .value();
 
   let result: GuitarPosition[][] = [];
 
   function helper(current: GuitarPosition[], string: number) {
     if (string === 0) {
-      result.push([...current]);
+      if (positionsContainsAllNotesInChord(current, chord)) {
+        result.push([...current]);
+      }
       return;
     }
 
-    positionsGroupByString[string - 1].forEach((pos) => {
+    positionsRest[string].forEach((pos) => {
       if (positionValid(pos, current)) {
         current.push(pos);
         helper(current, string - 1);
@@ -156,65 +184,49 @@ function generateCombinations(
   // since rootString is fixed, we need to find the combination from rootString + 1
 
   // find combinations from rootString - 1 to 0
-  if (rootPos.length === 0) {
-    throw new Error("Root note not found on the string");
+  if (positionsBass.length === 0) {
+    throw new Error("Bass note not found on the string");
   }
 
-  rootPos.forEach((p) => helper([p], rootString - 1));
-  helper(rootPos, rootString - 1);
+  // Start from the root position
+  positionsBass.forEach((p) => helper([p], bassString - 1));
+  // helper(rootPos, rootString - 1);
   return result;
 }
 
-export function getInfosFromChord(chord: Chord) {
+export function getLayoutsFromChord(chord: Chord) {
   const root = chord.rootNote;
 
   const notesWithPosition = chord.notes.map((note) => {
-    return noteToPosition(note, undefined, 22);
+    return {
+      note: note,
+      positions: noteToPosition(note, 22),
+    };
   });
 
   const combinationsAll = [];
 
   for (let i = 6; i >= 4; i--) {
-    const combinations = generateCombinations(notesWithPosition, i);
+    const combinations = generateCombinations(notesWithPosition, chord, i);
     combinationsAll.push(...combinations);
   }
-
-  return combinationsAll.map((position) => {
-    return {
-      chord: chord,
-      positions: position.map(
-        (p) =>
-          new GuitarPositionWithNote(
-            p.string,
-            p.fret,
-            positionToNote(p).name
-          )
-      )
-    };
-  });
+  return combinationsAll;
 }
 
 export function getInfosFromPosition(positions: GuitarPosition[]) {
   let chordInfos = [];
 
-  const fretDetails = positions.map(GuitarPositionWithNote.fromGuitarPosition);
+  const positionsWithPitchClass = _.chain(positions)
+    .map(GuitarPositionWithPichClass.fromGuitarPosition)
+    .uniqBy("pitchClass")
+    .value();
 
-  const rootNoteRaw = _.maxBy(fretDetails, (n) => n.string)
-  const notesRaw = fretDetails.map((f) => positionToNote(f));
+  const perms = _.permutations(positionsWithPitchClass, positionsWithPitchClass.length).map((p) => p.map((e) => Note.get(e.pitchClass)));
 
-  const rootNote = positionToNote(rootNoteRaw)
-
-  const notesUnique = _.uniqBy(notesRaw, "pitchClass");
-
-  const notesWithoutRoot = notesUnique.filter(
-    (n) => n.pitchClass !== rootNote.pitchClass
-  );
-
-  const possibleRestNotes = _.permutations(
-    notesWithoutRoot,
-    notesWithoutRoot.length
-  );
-
+  for (const perm of perms) {
+    const chord = Chord.fromNotes(perm)
+    console.log(chord)
+  }
 
   for (const restNotes of possibleRestNotes) {
     const notesALl = [rootNote, ...restNotes];
@@ -222,10 +234,11 @@ export function getInfosFromPosition(positions: GuitarPosition[]) {
     if (chord) {
       chordInfos.push({
         chord: chord,
-        positions: fretDetails
+        positions: positionsWithNote,
       });
     }
   }
+  console.log(chordInfos);
 
   return chordInfos;
 }
